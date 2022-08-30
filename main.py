@@ -7,8 +7,6 @@
 """
 
 import argparse
-import \
-    os.path
 
 import torchvision.transforms as transforms
 from torch.utils.data.dataloader import DataLoader
@@ -37,7 +35,7 @@ def validate(epoch):
         output = model(data.to(opt.device))
         val_loss += criterion(output, label.to(opt.device)).data.item()
         pred = output.data.max(1)[1]
-        correct += pred.eq(label.data).cpu().sum()
+        correct += pred.eq(label.to(opt.device).data).cpu().sum()
     val_loss /= len(test_data)
     acc = 100. * correct.to(torch.float32) / len(test_data.dataset)
     logger.info("***** Epoch{}, Eval results *****".format(epoch))
@@ -84,8 +82,8 @@ if __name__ == '__main__':
     movie_dir = os.path.join(opt.data_path, opt.sub_folder)
 
     if not opt.pre_load:
-        if not exit(os.path.join(opt.data_path, opt.sub_folder_jpg)):
-            os.mkdir(os.path.join(opt.data_path, opt.sub_folder_jpg))
+        if os.path.exists(os.path.join(opt.data_path, opt.sub_folder_jpg)):
+            os.makedirs(os.path.join(opt.data_path, opt.sub_folder_jpg))
         pre_load(movie_dir, frame_dir, opt.n_frames)
 
     train_loader = FramesLoader(frame_dir, transform=transformer, opt=opt)
