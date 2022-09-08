@@ -55,8 +55,7 @@ class FramesLoader(Dataset):
             for i in range(16):
                 frames_tr.append(torch.Tensor(3, self.opt.frame_height, self.opt.frame_width))
                 label = self.labels_dict[self.labels[item]]
-        # for temp in range(len(frames_tr)):
-        #     if np.sum(np.isnan(frames_tr[temp].numpy())):
-        #         print(self.vids[item])
-        #         print(temp)
+        for temp in range(len(frames_tr)):
+            if np.sum(np.isnan(frames_tr[temp].numpy())):
+                print(self.vids[item]+'/'+str(temp)+'.jpg')
         return torch.stack(frames_tr[0: self.opt.n_frames]), torch.tensor(label)
