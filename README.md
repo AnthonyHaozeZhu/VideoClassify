@@ -159,3 +159,7 @@ Validating Epoch 0:   2%|▏         | 1/43 [00:01<01:20,  1.91s/it]./data/hmdb5
 ./data/hmdb51_org_jpg/brush_hair/Brushing_Her_Hair__[_NEW_AUDIO_]_UPDATED!!!!_brush_hair_h_cm_np1_le_goo_1/3.jpg
 ./data/hmdb51_org_jpg/brush_hair/Brushing_Her_Hair__[_NEW_AUDIO_]_UPDATED!!!!_brush_hair_h_cm_np1_le_goo_1/4.jpg
 ``
+
+
+
+单独抽出了觉得有问题的几张图片进行处理，但是单独处理的时候没有任何问题，统一读入的时候就会出现问题，暂时还没有找出问题
