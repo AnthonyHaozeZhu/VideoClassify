@@ -12,14 +12,18 @@ import torchvision.transforms as transforms
 from torch.utils.data.dataloader import DataLoader
 from data import *
 from model import *
+import numpy as np
 
 
 def train(epoch):
+    model.train()
     train_tqdm = tqdm(train_data, desc="Training Epoch " + str(epoch))
     for index, (data, label) in enumerate(train_tqdm):
-        optimizer.zero_grad()
+        if np.sum(np.isnan(data.numpy())):
+            continue
         output = model(data.to(opt.device))
         loss = criterion(output, label.to(opt.device))
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         train_tqdm.set_postfix({"loss": "%.3g" % loss.item()})
@@ -30,8 +34,6 @@ def validate(epoch):
     val_loss, correct = 0, 0
     test_tqdm = tqdm(test_data, desc="Validating Epoch " + str(epoch))
     for index, (data, label) in enumerate(test_tqdm):
-        if data.shape[0] != label.shape[0]:
-            continue
         output = model(data.to(opt.device))
         val_loss += criterion(output, label.to(opt.device)).data.item()
         pred = output.data.max(1)[1]
@@ -59,9 +61,9 @@ if __name__ == '__main__':
     parser.add_argument("--num_class", default=52, type=int, help="The number of the classes")
     parser.add_argument("--frame_height", default=112, type=int)
     parser.add_argument("--frame_width", default=112, type=int)
-    parser.add_argument("--device", default='mps', type=str)
-    parser.add_argument("--batch_size", default=32, type=int)
-    parser.add_argument("--learning_rate", default=0.01, type=float)
+    parser.add_argument("--device", default="mps", type=str)
+    parser.add_argument("--batch_size", default=16, type=int)
+    parser.add_argument("--learning_rate", default=3e-5, type=float)
     parser.add_argument("--hidden_size", default=100, type=int, help="The hidden size of Lstm")
     parser.add_argument("--num_layers", default=1, type=int, help="The number of the hidden states of Lstm")
     parser.add_argument("--num_workers", default=5, type=int)
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     train_loader = FramesLoader(frame_dir, transform=transformer, opt=opt)
     test_loader = FramesLoader(frame_dir, transform=transformer, opt=opt, is_train=False)
 
-    train_data = DataLoader(dataset=train_loader, batch_size=opt.batch_size, num_workers=opt.num_workers, shuffle=True)
+    train_data = DataLoader(dataset=train_loader, batch_size=opt.batch_size, num_workers=opt.num_workers, shuffle=False)
     test_data = DataLoader(dataset=test_loader, batch_size=opt.batch_size, num_workers=opt.num_workers, shuffle=False)
 
     model = Resnet18Rnn(opt).to(opt.device)
